@@ -18,8 +18,8 @@ Resources:
   MyEC2Instance:
     Type: "AWS::EC2::Instance"
     Properties:
-      InstanceType: !Ref InstanceType
+      InstanceType: "t2.micro"
       ImageId: "ami-063d43db0594b521b"  # Replace with a valid AMI ID
       Tags:
         - Key: "Environment"
-          Value: !Ref EnvType
+          Value: "dev"
