@@ -1,0 +1,25 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  EnvType:
+    Type: String
+    Description: "Specify the environment type (e.g., dev, test, prod)"
+    AllowedValues:
+      - dev
+      - test
+      - prod
+    Default: dev
+
+  InstanceType:
+    Type: String
+    Description: "EC2 instance type"
+    Default: t2.micro
+
+Resources:
+  MyEC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: "ami-063d43db0594b521b"  # Replace with a valid AMI ID
+      Tags:
+        - Key: "Environment"
+          Value: !Ref EnvType
