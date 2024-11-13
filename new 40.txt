@@ -1,0 +1,75 @@
+AWSTemplateFormatVersion: '2010-09-09'
+Parameters:
+  EnvType:
+    Type: String
+    Description: "Specify the environment type (e.g., dev, test, prod)"
+    AllowedValues:
+      - dev
+      - test
+      - prod
+    Default: dev
+
+  InstanceType:
+    Type: String
+    Description: "EC2 instance type"
+    Default: t2.micro
+
+  GitRepository:
+    Type: String
+    Description: "Full repository ID in the format <GitProvider>/<RepoName> (e.g., GitHub/my-repo)"
+    
+  GitBranch:
+    Type: String
+    Description: "Git branch to sync"
+    Default: main
+
+  CodeStarConnectionArn:
+    Type: String
+    Description: "The ARN of the CodeStar connection for the Git repository"
+
+Resources:
+  # EC2 Instance
+  MyEC2Instance:
+    Type: "AWS::EC2::Instance"
+    Properties:
+      InstanceType: !Ref InstanceType
+      ImageId: "ami-063d43db0594b521b"  # Replace with a valid AMI ID
+      Tags:
+        - Key: "Environment"
+          Value: !Ref EnvType
+
+  # CodePipeline
+  MyPipeline:
+    Type: "AWS::CodePipeline::Pipeline"
+    Properties:
+      Name: "MyCloudFormationGitSyncPipeline"
+      RoleArn: arn:aws:iam::<account-id>:role/<pipeline-role>  # Replace with a valid IAM role ARN
+      Stages:
+        - Name: Source
+          Actions:
+            - Name: GitSource
+              ActionTypeId:
+                Category: Source
+                Owner: AWS
+                Provider: CodeStarSourceConnection
+                Version: 1
+              Configuration:
+                ConnectionArn: !Ref CodeStarConnectionArn
+                FullRepositoryId: !Ref GitRepository
+                BranchName: !Ref GitBranch
+              OutputArtifacts:
+                - Name: SourceArtifact
+        - Name: Deploy
+          Actions:
+            - Name: CloudFormationDeploy
+              ActionTypeId:
+                Category: Deploy
+                Owner: AWS
+                Provider: CloudFormation
+                Version: 1
+              Configuration:
+                StackName: "MyCloudFormationStack"
+                Capabilities: CAPABILITY_NAMED_IAM
+                TemplatePath: "SourceArtifact::path/to/your/template.yaml"  # Update with the actual path
+              InputArtifacts:
+                - Name: SourceArtifact
