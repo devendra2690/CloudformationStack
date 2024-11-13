@@ -2,7 +2,7 @@ AWSTemplateFormatVersion: '2010-09-09'
 Parameters:
   EnvType:
     Type: String
-    Description: "Specify the environment type (e.g., dev, test, prod)"
+    Description: "Specify the environment type"
     AllowedValues:
       - dev
       - test
